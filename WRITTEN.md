@@ -8,7 +8,7 @@ REPLACE THIS CONTENT WITH YOUR ANSWER
 
 ---
 
-### 2. In a C program, why does `argv[argv]` return `NULL`?
+### 2. In a C program, why does `argv[argc]` return `NULL`?
 
 REPLACE THIS CONTENT WITH YOUR ANSWER
 
