@@ -66,6 +66,8 @@ int main(int argc, char *argv[]) {
     exit(3);
   }
 
+  printf("Successfully replaced text with '%s'\n", REPLACE_TERM);
+
   if (close(readme_file_desc) < 0) {
     perror("Error closing README.md");
 
