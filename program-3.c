@@ -5,12 +5,24 @@
 #include <fcntl.h>
 #include <limits.h> //For using strtol since it returns LONG_MIN or LONG_MAX on error
 
-#define FIND_TERM     "Program 3"
-#define REPLACE_TERM  "PROGRAM 3"
+//Adding the ### prevents the program from editing instances of "Program 3" that are not
+//the heading instance we want to replace
+#define FIND_TERM     "### Program 3"
+#define REPLACE_TERM  "### PROGRAM 3"
+
 #define BUFFER_SIZE   1024
 
 ssize_t find_target_location_in_file(int file_descriptor);
 
+/** @brief program-3: Finds and replaces the 'Program 3' heading with 'PROGRAM 3'.
+ *                    If given the location of the target as a command-line argument, the program
+ *                    skips finding 'Program 3' and immediately lseek's to the given location,
+ *                    regardless of what content will be replaced.
+ *
+ * @param argc  Argument count
+ * @param argv  Argument vector. Holds location of 'Program 3' if given.
+ * @return 0 on status, !0 on failure.
+ */
 int main(int argc, char *argv[]) {
   //Open to read and write
   const int readme_file_desc = open("README.md", O_RDWR);
@@ -44,7 +56,7 @@ int main(int argc, char *argv[]) {
   char buffer[strlen(REPLACE_TERM) + 1];
   read(readme_file_desc, buffer, strlen(REPLACE_TERM));
   buffer[strlen(REPLACE_TERM)] = '\0';
-  printf("Text to be replaced: %s\n", buffer);
+  printf("Text to be replaced: '%s'\n", buffer);
 
   lseek(readme_file_desc, location_of_target, SEEK_SET);
 
@@ -89,8 +101,8 @@ ssize_t find_target_location_in_file(const int file_descriptor) {
     //found the target so save its spot in this file for lseek
     total_bytes_read += position_of_target_in_buffer - read_buffer;
 
-    printf("Location of %s in buffer %ld\n", FIND_TERM, position_of_target_in_buffer - read_buffer);
-    printf("Location of %s in file %ld\n", FIND_TERM, total_bytes_read);
+    printf("Location of '%s' in buffer %ld\n", FIND_TERM, position_of_target_in_buffer - read_buffer);
+    printf("Location of '%s' in file %ld\n", FIND_TERM, total_bytes_read);
 
     //Set file back to starting location
     lseek(file_descriptor, 0, 0);
