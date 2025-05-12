@@ -3,72 +3,101 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-
-#define NORMAL        "\033[0m"
-#define RESET         NORMAL
-#define GREEN         "\033[32m"
-#define RED           "\033[31m"
-#define BLUE          "\033[34m"
+#include <limits.h> //For using strtol since it returns LONG_MIN or LONG_MAX on error
 
 #define FIND_TERM     "Program 3"
 #define REPLACE_TERM  "PROGRAM 3"
 #define BUFFER_SIZE   1024
 
-int main() {
+ssize_t find_target_location_in_file(int file_descriptor);
+
+int main(int argc, char *argv[]) {
   //Open to read and write
-  int readme_file_desc = open("README.md", O_RDWR);
+  const int readme_file_desc = open("README.md", O_RDWR);
+
   if (readme_file_desc < 0) {
     perror("Error opening README.md");
 
     exit(1);
   }
 
-  char line_in_readme[BUFFER_SIZE + 1];
-  ssize_t total_bytes_read = 0;
-  ssize_t bytes_read;
+  ssize_t location_of_target;
 
-  while ((bytes_read = read(readme_file_desc, line_in_readme, BUFFER_SIZE)) != 0) {
-    if (bytes_read < 0) {
-      perror("Error reading README.md");
+  if (argc == 2) {
+    location_of_target = strtol(argv[1], NULL, 10);
 
-      exit(2);
+    if (location_of_target == LONG_MIN || location_of_target == LONG_MAX) {
+      printf("Usage: %s [location_of_target]", argv[0]);
+
+      exit(1);
     }
-
-    line_in_readme[BUFFER_SIZE] = '\0';
-
-    char *position_of_target_in_line = strstr(line_in_readme, FIND_TERM);
-
-    if (position_of_target_in_line == NULL) {
-      total_bytes_read += bytes_read;
-
-      continue;
-    }
-    else {
-      total_bytes_read += position_of_target_in_line - line_in_readme;
-    }
-
-    printf("Location of %s in line %ld\n", FIND_TERM, position_of_target_in_line - line_in_readme);
-    printf("Location of %s in file %ld\n", FIND_TERM, total_bytes_read);
-
-    break;
+  }
+  else {
+    location_of_target = find_target_location_in_file(readme_file_desc);
   }
 
-  lseek(readme_file_desc, total_bytes_read, SEEK_SET);
+  if (location_of_target < 0)
+    exit(2);
 
-  read(readme_file_desc, line_in_readme, strlen(FIND_TERM));
-  line_in_readme[strlen(FIND_TERM)] = '\0';
-  printf("%s", line_in_readme);
+  lseek(readme_file_desc, location_of_target, SEEK_SET);
 
-  lseek(readme_file_desc, total_bytes_read, SEEK_SET);
+  char buffer[strlen(REPLACE_TERM) + 1];
+  read(readme_file_desc, buffer, strlen(REPLACE_TERM));
+  buffer[strlen(REPLACE_TERM)] = '\0';
+  printf("Text to be replaced: %s\n", buffer);
+
+  lseek(readme_file_desc, location_of_target, SEEK_SET);
+
   if (write(readme_file_desc, REPLACE_TERM, strlen(REPLACE_TERM)) < 0) {
     perror("Error writing to README.md");
+
     exit(3);
   }
 
   if (close(readme_file_desc) < 0) {
     perror("Error closing README.md");
+
     exit(4);
   }
 
   exit(0);
+}
+
+ssize_t find_target_location_in_file(const int file_descriptor) {
+  //Add +1 char space for a null terminator to be added
+  char read_buffer[BUFFER_SIZE + 1];
+  ssize_t total_bytes_read = 0;
+  ssize_t bytes_read;
+
+  while ((bytes_read = read(file_descriptor, read_buffer, BUFFER_SIZE)) != 0) {
+    if (bytes_read < 0) {
+      perror("Error reading README.md");
+
+      return -1;
+    }
+
+    read_buffer[BUFFER_SIZE] = '\0';
+    char *position_of_target_in_buffer = strstr(read_buffer, FIND_TERM);
+
+    //Did not find our target, so remember how far we are into the file and continue reading
+    if (position_of_target_in_buffer == NULL) {
+      total_bytes_read += bytes_read;
+
+      continue;
+    }
+
+    //found the target so save its spot in this file for lseek
+    total_bytes_read += position_of_target_in_buffer - read_buffer;
+
+    printf("Location of %s in buffer %ld\n", FIND_TERM, position_of_target_in_buffer - read_buffer);
+    printf("Location of %s in file %ld\n", FIND_TERM, total_bytes_read);
+
+    //Set file back to starting location
+    lseek(file_descriptor, 0, 0);
+    return total_bytes_read;
+  }
+
+  printf("Target not in file\n");
+
+  return -1;
 }
