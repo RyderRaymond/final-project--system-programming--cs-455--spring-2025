@@ -108,8 +108,6 @@ ssize_t find_target_location_in_file(const int file_descriptor) {
 
     //found the target so save its spot in this file for lseek
     total_bytes_read += position_of_target_in_buffer - read_buffer;
-
-    printf("Location of '%s' in buffer %ld\n", FIND_TERM, position_of_target_in_buffer - read_buffer);
     printf("Location of '%s' in file %ld\n", FIND_TERM, total_bytes_read);
 
     //Set file back to starting location
