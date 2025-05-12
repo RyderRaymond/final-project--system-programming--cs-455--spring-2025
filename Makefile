@@ -1,10 +1,10 @@
 CC=gcc
 FLAGS=-Wall -g
-FILENAME=program-1.c
-#FILENAME=program-2.c
-#FILENAME=program-3.c
-#FILENAME=program-4.c
-#FILENAME=program-5.c
+#FILENAME=program-1
+#FILENAME=program-2
+FILENAME=program-3
+#FILENAME=program-4
+#FILENAME=program-5
 
 all: build run
 
