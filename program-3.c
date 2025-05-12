@@ -75,7 +75,15 @@ int main(int argc, char *argv[]) {
   exit(0);
 }
 
+/** @brief find_target_location_in_file: Finds the location of the target in the file
+ *
+ * @param file_descriptor File descriptor of the file in which to search
+ * @return The location or <0 on error
+ */
 ssize_t find_target_location_in_file(const int file_descriptor) {
+  //Go to the start of the file before searching.
+  lseek(file_descriptor, 0, SEEK_SET);
+
   //Add +1 char space for a null terminator to be added
   char read_buffer[BUFFER_SIZE + 1];
   ssize_t total_bytes_read = 0;
