@@ -6,22 +6,13 @@
 #include <limits.h>
 #include <string.h>
 
+/**
+ * 
+ * @param argc 
+ * @param argv 
+ * @return 
+ */
 int main(int argc, char *argv[]) {
-  // char *process_name;
-  //
-  // if (argc == 2)
-  //   process_name = argv[1];
-  // else
-  //   process_name = "top";
-  //
-  // DIR * proc_dir = opendir("/proc");
-  // if (proc_dir == NULL) {
-  //   perror("Failed to open /proc");
-  //   exit(1);
-  // }
-  //
-  // readdir(proc_dir);
-
   if (argc != 2) {
     printf("usage: %s: [process_id]\n", argv[0]);
     exit(1);
@@ -80,18 +71,17 @@ int main(int argc, char *argv[]) {
     exit(4);
   }
 
+  char process_parent_status_file_path[100] = "/proc/";
+  strcat(process_parent_status_file_path, process_PPID);
+  strcat(process_parent_status_file_path, "/status");
 
-  char process_parent_stat_file_path[100] = "/proc/";
-  strcat(process_parent_stat_file_path, process_PPID);
-  strcat(process_parent_stat_file_path, "/status");
-
-  FILE *proc_parent_status = fopen(process_parent_stat_file_path, "r");
-  if (proc_parent_status == NULL) {
+  FILE *parent_process_status_file = fopen(process_parent_status_file_path, "r");
+  if (parent_process_status_file == NULL) {
     perror("Failed to open process status file");
     exit(2);
   }
 
-  if (fgets(line_in_file, 100, proc_parent_status) == NULL) {
+  if (fgets(line_in_file, 100, parent_process_status_file) == NULL) {
     perror("Failed to get parent process' name");
     exit(2);
   }
@@ -103,7 +93,7 @@ int main(int argc, char *argv[]) {
 
   printf("Name of parent process is %s\n", process_parent_name);
 
-  if (fclose(proc_parent_status) != 0) {
+  if (fclose(parent_process_status_file) != 0) {
     perror("Failed to close process status file");
     exit(4);
   }
