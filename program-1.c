@@ -72,8 +72,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  printf("%s\n", process_name);
-  printf("%s\n", process_PPID);
+  printf("The PPID for process named %s is %s\n", process_name, process_PPID);
   //3. Get name of parent process (/proc<ppid>/status);
 
   if (fclose(proc_status) != 0) {
@@ -81,7 +80,33 @@ int main(int argc, char *argv[]) {
     exit(4);
   }
 
-  
+
+  char process_parent_stat_file_path[100] = "/proc/";
+  strcat(process_parent_stat_file_path, process_PPID);
+  strcat(process_parent_stat_file_path, "/status");
+
+  FILE *proc_parent_status = fopen(process_parent_stat_file_path, "r");
+  if (proc_parent_status == NULL) {
+    perror("Failed to open process status file");
+    exit(2);
+  }
+
+  if (fgets(line_in_file, 100, proc_parent_status) == NULL) {
+    perror("Failed to get parent process' name");
+    exit(2);
+  }
+
+  char* name = strstr(line_in_file, "\t");
+  name++;
+  strcpy(process_parent_name, name);
+  process_parent_name[strlen(process_parent_name) - 1] = '\0';
+
+  printf("Name of parent process is %s\n", process_parent_name);
+
+  if (fclose(proc_parent_status) != 0) {
+    perror("Failed to close process status file");
+    exit(4);
+  }
 
   exit(0);
 }
