@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
   // readdir(proc_dir);
 
   if (argc != 2) {
-    printf("usage: %s: [process_id]", argv[0]);
+    printf("usage: %s: [process_id]\n", argv[0]);
     exit(1);
   }
 
@@ -45,13 +45,43 @@ int main(int argc, char *argv[]) {
   }
 
   char process_name[100];
-  char process_parent_name;
-  char process_PPID;
+  char process_parent_name[100];
+  char process_PPID[100];
+  char line_in_file [BUFSIZ]; //we will read line by line
 
   //1. Get name of this process
   //2. Get PPID for this process
+  for (int i = 0; i < 7; i++) {
+    if (fgets(line_in_file, 100, proc_status) == NULL) {
+      perror("Failed to read from process status file");
+      exit(3);
+    }
+    switch (i) {
+      case 0:
+        char* name = strstr(line_in_file, "\t");
+        name++;
+        strcpy(process_name, name);
+        process_name[strlen(process_name) - 1] = '\0';
+        break;
+      case 6:
+        char* ppid = strstr(line_in_file, "\t");
+        ppid++;
+        strcpy(process_PPID, ppid);
+        process_PPID[strlen(process_PPID) - 1] = '\0';
+        break;
+    }
+  }
+
+  printf("%s\n", process_name);
+  printf("%s\n", process_PPID);
   //3. Get name of parent process (/proc<ppid>/status);
 
+  if (fclose(proc_status) != 0) {
+    perror("Failed to close process stat file");
+    exit(4);
+  }
+
   
+
   exit(0);
 }

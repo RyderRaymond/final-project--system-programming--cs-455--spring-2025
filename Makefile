@@ -1,8 +1,8 @@
 CC=gcc
 FLAGS=-Wall -g
-#FILENAME=program-1
+FILENAME=program-1
 #FILENAME=program-2
-FILENAME=program-3
+#FILENAME=program-3
 #FILENAME=program-4
 #FILENAME=program-5
 
