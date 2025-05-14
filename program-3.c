@@ -40,24 +40,28 @@ int main(int argc, char *argv[]) {
 
   ssize_t location_of_target;
 
+  //If the user gives the location because they already know it, need to retrieve it and validate it
   if (argc == 2) {
     location_of_target = strtol(argv[1], NULL, 10);
 
     if (location_of_target == LONG_MIN || location_of_target == LONG_MAX) {
       printf("Usage: %s [location_of_target]", argv[0]);
 
-      exit(1);
+      exit(2);
     }
   }
   else {
     location_of_target = find_target_location_in_file(readme_file_desc);
   }
 
-  if (location_of_target < 0)
-    exit(2);
+  if (location_of_target < 0) {
+    printf("Location of target must be non-negative if given explicitly");
+    exit(3);
+  }
 
   lseek(readme_file_desc, location_of_target, SEEK_SET);
 
+  //Read what will be replaced into a buffer to print for the user
   char buffer[strlen(REPLACE_TERM) + 1];
   read(readme_file_desc, buffer, strlen(REPLACE_TERM));
   buffer[strlen(REPLACE_TERM)] = '\0';
@@ -65,10 +69,11 @@ int main(int argc, char *argv[]) {
 
   lseek(readme_file_desc, location_of_target, SEEK_SET);
 
+
   if (write(readme_file_desc, REPLACE_TERM, strlen(REPLACE_TERM)) < 0) {
     perror("Error writing to README.md");
 
-    exit(3);
+    exit(4);
   }
 
   printf("Successfully replaced text with '%s'\n", REPLACE_TERM);
@@ -76,7 +81,7 @@ int main(int argc, char *argv[]) {
   if (close(readme_file_desc) < 0) {
     perror("Error closing README.md");
 
-    exit(4);
+    exit(5);
   }
 
   exit(0);
@@ -84,14 +89,14 @@ int main(int argc, char *argv[]) {
 
 /** @brief find_target_location_in_file: Finds the location of the target in the file
  *
- * @param file_descriptor File descriptor of the file in which to search
+ * @param file_descriptor: File descriptor of the file in which to search
  * @return The location or <0 on error
  */
 ssize_t find_target_location_in_file(const int file_descriptor) {
   //Go to the start of the file before searching.
   lseek(file_descriptor, 0, SEEK_SET);
 
-  //Add +1 char space for a null terminator to be added
+  //Add +1 char space for a null terminator to be added in case we do read BUFFER_SIZE bytes
   char read_buffer[BUFFER_SIZE + 1];
   ssize_t total_bytes_read = 0;
   ssize_t bytes_read;
@@ -103,8 +108,8 @@ ssize_t find_target_location_in_file(const int file_descriptor) {
       return -1;
     }
 
-    read_buffer[BUFFER_SIZE] = '\0';
-    char *position_of_target_in_buffer = strstr(read_buffer, FIND_TERM);
+    read_buffer[bytes_read] = '\0';
+    const char * const position_of_target_in_buffer = strstr(read_buffer, FIND_TERM);
 
     //Did not find our target, so remember how far we are into the file and continue reading
     if (position_of_target_in_buffer == NULL) {
@@ -117,7 +122,7 @@ ssize_t find_target_location_in_file(const int file_descriptor) {
     total_bytes_read += position_of_target_in_buffer - read_buffer;
     printf("Location of '%s' in file: %ld\n", FIND_TERM, total_bytes_read);
 
-    //Set file back to starting location
+    //Set back to beginning of file
     lseek(file_descriptor, 0, 0);
     return total_bytes_read;
   }

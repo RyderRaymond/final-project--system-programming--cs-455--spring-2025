@@ -25,12 +25,12 @@ int main(int argc, char *argv[]) {
   }
 
   //Make sure PID is all digits
-  char *character_in_PID_argument = argv[1];
+  const char *character_in_PID_argument = argv[1];
 
   while (*character_in_PID_argument != '\0') {
     if (!isdigit(*character_in_PID_argument++)) {
       printf("%s: Invalid PID\n", argv[0]);
-      exit(1);
+      exit(2);
     }
   }
 
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
   char process_status_file_path[100] = "/proc/";
   if (strlen(process_status_file_path) + strlen(argv[1]) + strlen("/status") > 100) {
     printf("Process number too large");
-    exit(1);
+    exit(3);
   }
   strcat(process_status_file_path, argv[1]);
   strcat(process_status_file_path, "/status");
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
   if (process_status_file == NULL) {
     printf("Failed to open process status file: %s", process_status_file_path);
     printf("Likely that no process with this PID exists\n");
-    exit(2);
+    exit(4);
   }
 
   char process_name[100];
@@ -61,18 +61,18 @@ int main(int argc, char *argv[]) {
   for (int i = 1; i <= 7; i++) {
     if (fgets(line_in_file, 100, process_status_file) == NULL) {
       perror("Failed to read from process status file");
-      exit(3);
+      exit(5);
     }
 
     switch (i) {
       case 1:
-        char* name = strstr(line_in_file, "\t");
-        name++; //right after the tab is the content for this field
+        const char *name = strstr(line_in_file, "\t");
+        name++; //right after the tab is the content for each field
         strcpy(process_name, name);
         process_name[strlen(process_name) - 1] = '\0'; //replace newline character with terminator
         break;
       case 7:
-        char* ppid = strstr(line_in_file, "\t");
+        const char* ppid = strstr(line_in_file, "\t");
         ppid++;
         strcpy(process_PPID, ppid);
         process_PPID[strlen(process_PPID) - 1] = '\0';
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
 
   if (fclose(process_status_file) != 0) {
     perror("Failed to close process stat file");
-    exit(4);
+    exit(6);
   }
 
   //Now we get the name of the parent process
@@ -95,15 +95,15 @@ int main(int argc, char *argv[]) {
   FILE *parent_process_status_file = fopen(process_parent_status_file_path, "r");
   if (parent_process_status_file == NULL) {
     perror("Failed to open parent process status file");
-    exit(2);
+    exit(7);
   }
 
   if (fgets(line_in_file, 100, parent_process_status_file) == NULL) {
     perror("Failed to get parent process' name");
-    exit(2);
+    exit(8);
   }
 
-  char* name = strstr(line_in_file, "\t");
+  const char* name = strstr(line_in_file, "\t");
   name++;
   strcpy(process_parent_name, name);
   process_parent_name[strlen(process_parent_name) - 1] = '\0';
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 
   if (fclose(parent_process_status_file) != 0) {
     perror("Failed to close parent process status file");
-    exit(4);
+    exit(9);
   }
 
   exit(0);

@@ -18,7 +18,7 @@ extern char end;
  *										of segments, such as the memory after an uninitialized variable matching the end of the uninitialized data
  *										segment, or &end. When testing on Ubuntu, some of these did not match up due to differing architecture.
  *
- *										Because of this discrepency, to note the real end of memory segments, use the addresses of the
+ *										Because of this discrepancy, to note the real end of memory segments, use the addresses of the
  *										extern variables etext, edata, and end, which are the final 3 lines printed.
  *
  * @return 0
