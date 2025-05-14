@@ -14,13 +14,14 @@
  */
 int main(int argc, char *argv[]) {
   if (argc != 2) {
-    printf("usage: %s: [process_id]\n", argv[0]);
+    printf("usage: %s <process_id>\n", argv[0]);
+    printf("%s: Missing PID to get PPID\n", argv[0]);
     exit(1);
   }
 
   long strtol_result = strtol(argv[1], NULL, 10);
   if (strtol_result < 0 || strtol_result > INT_MAX) {
-    printf("usage: %s: [process_id]", argv[0]);
+    printf("usage: %s <process_id>", argv[0]);
     perror("Invalid process ID");
     exit(1);
   }
