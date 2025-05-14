@@ -31,7 +31,7 @@ int main() {
 	printf("Memory address of something_uninitialized: %p\n", &something_uninitialized);
 	printf("End of something_uninitialized: %s%p%s\n", GREEN, &something_uninitialized + 1, NORMAL);
 	printf("Memory address of something_initialized: %p\n", &something_initialized);
-	printf("End of something_initialized: %s%p%s\n", RED, &something_initialized + 1, NORMAL);
+	printf("End of something_initialized: %s%p%s\n\n", RED, &something_initialized + 1, NORMAL);
 
 	printf("Address of etext (end of text segment): %s%p%s\n", BLUE, &etext, NORMAL);
 	printf("Address of edata (end of initialized data segment): %s%p%s\n", RED, &edata, NORMAL);
