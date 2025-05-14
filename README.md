@@ -27,7 +27,7 @@ Extra credit is built into this assignment’s grading. See the **Grading** sect
 
 ### Program 1
 
-As discussed in chapters 2 and 4, every process has an ID and a parent who also has an ID. Write a C program -- no shell scripts -- that reports the PID of the parent of the `top` program. You will need to run the `top` program in a Terminal window before writing the output of your C program in a separate window.
+As discussed in chapters 2 and 4, every process has an ID and a parent who also has an ID. Write a C program — no shell scripts — that reports the PID of the parent of the `top` program. You will need to run the `top` program in a Terminal window before writing the output of your C program in a separate window.
 
 ### Program 2
 
