@@ -45,7 +45,13 @@ how the service should be used to prevent misuse.
 
 ### 4. Explain the relationship between the return value of a system call and the global variable `errno`
 
-REPLACE THIS CONTENT WITH YOUR ANSWER
+The relationship between the return value of a system call and the global variable 'errno' is that when the return
+value of a system call is that of an error value, the system call will have set 'errno' to some value that
+explains the error that the system call encountered. If the system call does not return a value that represents an error, 
+the system call will have most likely not changed the value of 'errno', so the program should not check 'errno' as its value
+will be explaining the error encountered by the last failed system call, not the current one. For instance, if a call to 
+'open' fails because the file does not exist and the flag to create the file is not set, then 'open' will return some negative value
+and set 'errno' to the value that represents the file not being found. 
 
 ---
 
@@ -55,29 +61,29 @@ REPLACE THIS CONTENT WITH YOUR ANSWER
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX 128
+#define MAX 128                             //Symbolic constants not stored but rather replaced in preprocessing with its defined value
 
-char my_string[MAX];
-char class_name[] = "System Programming";
-int global_integer = 3;
+char my_string[MAX];                        //Uninitialized data segment
+char class_name[] = "System Programming";   //Initialized data segment
+int global_integer = 3;                     //Initialized data segment
 
-void print_global() {
+void print_global() {                       //Function instructions allocated to text segment
   printf("%d\n", global_integer);
 }
 
-int square(int x) {
-  int result = x * x;
+int square(int x) {                         //Function allocated to text segment; Parameter allocated to stack frame for 'square()'
+  int result = x * x;                       //Allocated in stack frame for 'square()'
 
-  return result;
+  return result;                            //Passed in register to calling function
 }
 
-int main (int argc, char *argv[]) {
-  char *dynamic_memory;
-  dynamic_memory = malloc(MAX);
-  free(dynamic_memory);
-  dynamic_memory = NULL;
+int main (int argc, char *argv[]) {         //Function 'main' stored in text segment. 'argc', 'argv' stored in stack frame for 'main()'
+  char *dynamic_memory;                     //Pointer stored in stack frame for 'main()'
+  dynamic_memory = malloc(MAX);             //Memory allocated using 'malloc' stored in heap, pointer stored in variable 'dynamic_memory' in stack
+  free(dynamic_memory);                    
+  dynamic_memory = NULL;                    
 
-  return 0;
+  return 0;                                 //Return value passed to calling function in a register
 }
 ```
 
@@ -85,19 +91,52 @@ int main (int argc, char *argv[]) {
 
 ### 6. Explain the difference between `malloc`, `calloc`, `realloc`
 
-REPLACE THIS CONTENT WITH YOUR ANSWER
+Malloc allocates dynamic memory on the heap of the size of bytes given to it and returns 
+a pointer to the newly allocated memory. This memory is not initialized and is only the size
+that is given.
+
+Calloc is like malloc, but rather than allocating memory on the heap for one item, it 
+allocates memory for an array of items of the same type. It takes in the size of a single item
+and the number of items as an argument, and unlike malloc, it initializes the newly allocated 
+memory to 0. 
+
+Realloc does not allocate memory for a new item or an array of new items, but instead attempts
+to resize the memory allocated to an existing item from a previous call to malloc or calloc. 
+If realloc is able to allocate the requested new size, then the data in the existing block
+of memory is moved to the new location if realloc could not simply extend the existing block to 
+the requested size.
 
 ---
 
 ### 7. Explain the difference between `brk` and `sbrk`. Why is `malloc` a better option of `brk`, and `sbrk`?
 
-REPLACE THIS CONTENT WITH YOUR ANSWER
+'brk' and 'sbrk' both move the program break (the size of the heap) to a new location. The 
+difference is that brk sets the program break to a specific location that it is given as an argument,
+whereas sbrk increases the size by an increment. 
+
+Malloc is a better option of brk and sbrk for a few reasons: 
+
+1. The first is that it allows the program to hold blocks of data even after a call to 'free', to avoid having to keep using the 
+    system calls to readjust the heap size. This improves performance, as system calls have some
+    overhead due to switching into kernel mode and back to user mode. 
+2. It makes it easier to handle allocating memory. For instance, it is easy to test a failed call to
+    malloc by checking if a NULL pointer is returned, and it is easy to pass a pointer returned
+    by malloc to 'free' to handle deallocating the memory than manually moving the program break.
+3. It is part of the C standard library, promoting cross-platform compatibility, and allows for use with other malloc family functions like 
+    free and realloc. 
 
 ---
 
 ### 8. Explain why a shadow password file is needed
 
-REPLACE THIS CONTENT WITH YOUR ANSWER
+A shadow password file is needed because the /etc/passwd file holds password-related information
+that must be readable by non-privileged programs, such as the username, home directory, and
+login shell. If non-privileged programs are allowed to read the encrypted password for a user,
+it allows for potentially malicious programs to attempt password-cracking techniques like 
+dictionary attacks, comparing these encrypted passwords to other cracked encrypted passwords 
+to attempt to find a match, or even brute-force attacks. Moving the encrypted password to the 
+shadow file and requiring privileged access prevents potentially untrusted programs from 
+accessing the file and reading the encrypted passwords. 
 
 ---
 
@@ -107,10 +146,11 @@ REPLACE THIS CONTENT WITH YOUR ANSWER
 -rw-r--r-- 1  johnnythunders  staff  3476 May  1 11:57 README.md
 ```
 
-REPLACE THIS CONTENT WITH YOUR ANSWER
+The numeric equivalent of the README file's permission bits is '644'. 
+
+The command to give full file access is `chmod 777`, which sets the permission bits to `-rwxrwxrwx`.
 
 ---
 
 ### 10. What does `kill -9 1` do? Explain in detail
 
-REPLACE THIS CONTENT WITH YOUR ANSWER
