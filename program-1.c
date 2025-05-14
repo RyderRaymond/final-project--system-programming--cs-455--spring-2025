@@ -1,16 +1,21 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include <dirent.h>
-#include <limits.h>
 #include <string.h>
 
-/**
+/** @brief program-1: Takes in a PID (process ID) and prints the process' PPID
+ *                    and some other information.
+ *
+ *                    To use with the 'top' program in particular, run top in a separate
+ *                    terminal, use ps -el | grep 'top' to get the PID and run this
+ *                    program with that PID as an argument.
+ *
  * 
- * @param argc 
- * @param argv 
- * @return 
+ * @param argc  number of arguments: must be 2: name of program and PID
+ * @param argv  argument vector
+ * @return      0 on success and !0 on failure
  */
 int main(int argc, char *argv[]) {
   if (argc != 2) {
@@ -19,20 +24,29 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  long strtol_result = strtol(argv[1], NULL, 10);
-  if (strtol_result < 0 || strtol_result > INT_MAX) {
-    printf("usage: %s <process_id>", argv[0]);
-    perror("Invalid process ID");
-    exit(1);
+  //Make sure PID is all digits
+  char *character_in_PID_argument = argv[1];
+
+  while (*character_in_PID_argument != '\0') {
+    if (!isdigit(*character_in_PID_argument++)) {
+      printf("%s: Invalid PID\n", argv[0]);
+      exit(1);
+    }
   }
 
-  char process_stat_file_path[100] = "/proc/";
-  strcat(process_stat_file_path, argv[1]);
-  strcat(process_stat_file_path, "/status");
+  //Get file path for this PID status file
+  char process_status_file_path[100] = "/proc/";
+  if (strlen(process_status_file_path) + strlen(argv[1]) + strlen("/status") > 100) {
+    printf("Process number too large");
+    exit(1);
+  }
+  strcat(process_status_file_path, argv[1]);
+  strcat(process_status_file_path, "/status");
 
-  FILE *proc_status = fopen(process_stat_file_path, "r");
-  if (proc_status == NULL) {
-    perror("Failed to open process status file");
+  FILE *process_status_file = fopen(process_status_file_path, "r");
+  if (process_status_file == NULL) {
+    printf("Failed to open process status file: %s", process_status_file_path);
+    perror("");
     exit(2);
   }
 
@@ -41,21 +55,23 @@ int main(int argc, char *argv[]) {
   char process_PPID[100];
   char line_in_file [BUFSIZ]; //we will read line by line
 
-  //1. Get name of this process
-  //2. Get PPID for this process
-  for (int i = 0; i < 7; i++) {
-    if (fgets(line_in_file, 100, proc_status) == NULL) {
+  //Read up through line 7
+  //Line 1 is the process name of the PID given as an argument
+  //Line 7 is the PPID of the given PID
+  for (int i = 1; i <= 7; i++) {
+    if (fgets(line_in_file, 100, process_status_file) == NULL) {
       perror("Failed to read from process status file");
       exit(3);
     }
+
     switch (i) {
-      case 0:
+      case 1:
         char* name = strstr(line_in_file, "\t");
-        name++;
+        name++; //right after the tab is the content for this field
         strcpy(process_name, name);
-        process_name[strlen(process_name) - 1] = '\0';
+        process_name[strlen(process_name) - 1] = '\0'; //replace newline character with terminator
         break;
-      case 6:
+      case 7:
         char* ppid = strstr(line_in_file, "\t");
         ppid++;
         strcpy(process_PPID, ppid);
@@ -64,21 +80,21 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  printf("The PPID for process named %s is %s\n", process_name, process_PPID);
-  //3. Get name of parent process (/proc<ppid>/status);
+  printf("The PPID for process named '%s' is %s\n", process_name, process_PPID);
 
-  if (fclose(proc_status) != 0) {
+  if (fclose(process_status_file) != 0) {
     perror("Failed to close process stat file");
     exit(4);
   }
 
+  //Now we get the name of the parent process
   char process_parent_status_file_path[100] = "/proc/";
   strcat(process_parent_status_file_path, process_PPID);
   strcat(process_parent_status_file_path, "/status");
 
   FILE *parent_process_status_file = fopen(process_parent_status_file_path, "r");
   if (parent_process_status_file == NULL) {
-    perror("Failed to open process status file");
+    perror("Failed to open parent process status file");
     exit(2);
   }
 
@@ -92,10 +108,10 @@ int main(int argc, char *argv[]) {
   strcpy(process_parent_name, name);
   process_parent_name[strlen(process_parent_name) - 1] = '\0';
 
-  printf("Name of parent process is %s\n", process_parent_name);
+  printf("Name of parent process is '%s'\n", process_parent_name);
 
   if (fclose(parent_process_status_file) != 0) {
-    perror("Failed to close process status file");
+    perror("Failed to close parent process status file");
     exit(4);
   }
 
