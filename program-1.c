@@ -13,7 +13,7 @@
  *                    program with that PID as an argument.
  *
  * 
- * @param argc  number of arguments: must be 2: name of program and PID
+ * @param argc  number of arguments: must be 2: the name of this program (given by system) and a PID (given by user)
  * @param argv  argument vector
  * @return      0 on success and !0 on failure
  */
