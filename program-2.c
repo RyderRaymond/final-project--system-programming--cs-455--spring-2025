@@ -11,12 +11,12 @@ int main() {
   for (int i = 0; i < num_named_vars; i++)
     printf("%s: %s\n\n", named_variables_to_get[i], getenv(named_variables_to_get[i]));
 
-  printf("USERNAME is not set for my environment, but USER and LOGNAME are set:\n");
+  printf("USERNAME was not set for my environment on Fedora Linux, but they were on Ubuntu.\nUSER and LOGNAME were set, so here are their values:\n\n");
   printf("USER: %s\n", getenv("USER"));
   printf("LOGNAME: %s\n", getenv("LOGNAME"));
 
   printf("\n-----------------------------------------------------------------\n");
-  printf("Other information available in environ:\n");
+  printf("Other information available in environ:\n\n");
 
   for (char **env = environ; *env != NULL; env++) {
     printf("%s\n", *env);
