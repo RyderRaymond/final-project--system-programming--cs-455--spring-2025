@@ -12,7 +12,7 @@
  *                    terminal, use ps -el | grep 'top' to get the PID and run this
  *                    program with that PID as an argument.
  *
- * 
+ *
  * @param argc  number of arguments: must be 2: the name of this program (given by system) and a PID (given by user)
  * @param argv  argument vector
  * @return      0 on success and !0 on failure

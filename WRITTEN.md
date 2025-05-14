@@ -25,7 +25,7 @@ the list of arguments. For instance, rather than using a for loop from 1 to argc
 the values in argv, it is simpler and more efficient to create a pointer to the first element
 of argv and then increment this pointer in a while loop until we reach the NULL pointer. 
 
-The second reason is just in case the process attempts to access argv[argc], as if it was not NULL, 
+The second reason is just in case the process attempts to access argv[argc], because if it was not NULL, 
 the process would be accessing unknown memory. Since off-by-one errors are very common, it is a 
 good safety feature to have. 
 

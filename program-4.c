@@ -36,10 +36,10 @@ int main() {
 	printf("Address of etext (end of text segment): %s%p%s\n", BLUE, &etext, NORMAL);
 	printf("Address of edata (end of initialized data segment): %s%p%s\n", RED, &edata, NORMAL);
 	printf("Address of end (end of uninitialized data segment): %s%p%s\n", GREEN, &end, NORMAL);
-	
+
 	//Free the string we allocated earlier
 	free(allocated_string);
 	allocated_string = NULL;
 
-  return 0;	
+  return 0;
 }
