@@ -154,3 +154,7 @@ The command to give full file access is `chmod 777`, which sets the permission b
 
 ### 10. What does `kill -9 1` do? Explain in detail
 
+`kill -9 1` sends the `SIGKILL` signal to the process with PID 1, which is either 'init' or 'systemd' 
+depending on the operating system. When run as a regular user, bash notifies the user that this 
+operation is not permitted, as the init or systemd process cannot be killed. If run as a superuser, 
+the command goes through, but nothing happens, again because the initializing process cannot be killed.
