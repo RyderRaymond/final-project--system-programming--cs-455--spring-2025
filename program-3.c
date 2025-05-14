@@ -15,9 +15,14 @@
 ssize_t find_target_location_in_file(int file_descriptor);
 
 /** @brief program-3: Finds and replaces the 'Program 3' heading with 'PROGRAM 3'.
+ *
  *                    If given the location of the target as a command-line argument, the program
  *                    skips finding 'Program 3' and immediately lseek's to the given location,
- *                    regardless of what content will be replaced.
+ *                    regardless of what content will be replaced. This is meant to display the
+ *                    use of lseek if the position is already known. To find the position, you can
+ *                    run the program once with no arguments, and it will print the location
+ *                    of "### Program 3". Then restore README.md to before the change and input that
+ *                    location as an argument to the program.
  *
  * @param argc  Argument count
  * @param argv  Argument vector. Holds location of 'Program 3' if given.
@@ -110,7 +115,7 @@ ssize_t find_target_location_in_file(const int file_descriptor) {
 
     //found the target so save its spot in this file for lseek
     total_bytes_read += position_of_target_in_buffer - read_buffer;
-    printf("Location of '%s' in file %ld\n", FIND_TERM, total_bytes_read);
+    printf("Location of '%s' in file: %ld\n", FIND_TERM, total_bytes_read);
 
     //Set file back to starting location
     lseek(file_descriptor, 0, 0);
