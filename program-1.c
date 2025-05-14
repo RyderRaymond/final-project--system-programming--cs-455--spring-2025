@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
   FILE *process_status_file = fopen(process_status_file_path, "r");
   if (process_status_file == NULL) {
-    printf("Failed to open process status file: %s", process_status_file_path);
+    printf("Failed to open process status file: %s\n", process_status_file_path);
     printf("Likely that no process with this PID exists\n");
     exit(4);
   }
